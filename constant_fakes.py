@@ -1,0 +1,66 @@
+IMPOSSIBLE_STATEMENTS = [
+    # Medical impossibilities
+    "cancer is completely curable",
+    "humans can breathe underwater without equipment",
+    "dead people can come back to life",
+    "a person can survive without oxygen for hours",
+    "vaccines contain microchips",
+    "drinking bleach cures diseases",
+    "eating stones improves health",
+    "humans can live forever",
+
+    # Scientific impossibilities
+    "humans can fly unaided",
+    "aliens landed on earth",
+    "time travel exists",
+    "earth is flat",
+    "the sun revolves around the earth",
+    "perpetual motion machines exist",
+    "faster than light travel is possible",
+    "gravity does not exist",
+    "water flows uphill naturally",
+    "the moon is made of cheese",
+
+    # Historical impossibilities
+    "napoleon was taller than 3 meters",
+    "world war 3 already happened",
+    "dinosaurs coexisted with humans",
+    "the pyramids were built by aliens",
+    "rome was built in 1 day",
+
+    # Supernatural / fantasy impossibilities
+    "magic can cure all diseases",
+    "dragons exist",
+    "unicorns exist",
+    "humans can read minds",
+    "ghosts can harm people physically",
+    "people can teleport instantly",
+    "people can see the future accurately",
+    "zombies walk among us",
+    "vampires exist",
+    "werewolves exist",
+    "mermaids exist",
+    "humans can control weather",
+    "telepathy is real",
+
+    # General nonsense / internet hoaxes
+    "the internet will end in 2025",
+    "aliens will abduct all humans",
+    "the earth will explode tomorrow",
+    "humans can survive on the sun",
+    "eating gold makes you immortal",
+    "touching a smartphone can give superpowers",
+    "you can live without food and water for years",
+    "money can grow on trees",
+    "stars are tiny lights glued to the sky",
+    "gravity can be turned off",
+    "the earth is hollow",
+    "vaccines can change your DNA completely",
+    "the world is actually a simulation",
+    "people can photosynthesize like plants",
+    "humans have 3 hearts",
+    "flying cars exist widely today",
+    "dinosaurs are pets",
+    "the sky is green",
+    "chocolate can cure all diseases"
+]
