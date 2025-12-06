@@ -6,9 +6,32 @@ from model_training import preprocess_text
 from constant_fakes import IMPOSSIBLE_STATEMENTS
 from urllib.parse import urlparse
 from sklearn.metrics.pairwise import cosine_similarity
+import sqlite3
+
+# --- SQLite Review System ---
+conn = sqlite3.connect("reviews.db", check_same_thread=False)
+cursor = conn.cursor()
+
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT,
+    review TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+conn.commit()
+
+def add_review(name, review):
+    cursor.execute("INSERT INTO reviews (name, review) VALUES (?, ?)", (name, review))
+    conn.commit()
+
+def get_reviews():
+    cursor.execute("SELECT name, review, created_at FROM reviews ORDER BY created_at DESC")
+    return cursor.fetchall()
+
 
 # ---------------- CONFIG ----------------
-DJANGO_API_URL = "http://127.0.0.1:8000/api/reviews/"
 FACTCHECK_API_KEY = "AIzaSyCMClQLBsetyl9pr8E5JOibbbgr0orGHyY"
 FACTCHECK_URL = "https://factchecktools.googleapis.com/v1alpha1/claims:search"
 
@@ -44,7 +67,7 @@ textarea { border-radius:12px !important; font-size:17px !important; }
 """, unsafe_allow_html=True)
 
 st.markdown("<div class='title'>Fake News Detector</div>", unsafe_allow_html=True)
-st.markdown("<div class='subtitle'>Just paste the snippet and click 'Check News' to check whether the news is Real or Fake </div>", unsafe_allow_html=True)
+st.markdown("<div class='subtitle'>Just paste the snippet and click 'Check News' to check whether the news is Real or Fake</div>", unsafe_allow_html=True)
 
 # ---------------- SIDEBAR: ABOUT ----------------
 st.sidebar.markdown(
@@ -72,20 +95,13 @@ st.session_state.fact_index = (st.session_state.fact_index + 1) % len(facts)
 st.sidebar.markdown("<div class='card'><div class='card-title'>Leave a Review</div>", unsafe_allow_html=True)
 review_name = st.sidebar.text_input("Your Name", value="Anonymous")
 review_text = st.sidebar.text_area("Write your review here...", height=80)
-
 if st.sidebar.button("Submit Review"):
     if review_text.strip():
-        data = {"name": review_name.strip() or "Anonymous", "review": review_text.strip()}
-        try:
-            response = requests.post(DJANGO_API_URL, json=data)
-            if response.status_code == 201:
-                st.sidebar.success("Review submitted successfully!")
-            else:
-                st.sidebar.error("Failed to submit review. Try again.")
-        except Exception as e:
-            st.sidebar.error(f"Could not connect to API: {e}")
+        add_review(review_name.strip() or "Anonymous", review_text.strip())
+        st.sidebar.success("Review submitted successfully!")
     else:
         st.sidebar.warning("Please write something before submitting.")
+
 
 # ---------------- MAIN INPUT ----------------
 news_text = st.text_area("", height=140, placeholder="Enter news snippet...")
@@ -160,17 +176,17 @@ if st.button("Check News", key="check_news_btn"):
         st.warning("Please enter a news snippet.")
         st.stop()
 
-    #Impossible check
+    # 1️⃣ Impossible check
     impossible, matched_phrase = is_impossible(news_text)
     if impossible:
         st.markdown("<div class='result-box fake'>FAKE News</div>", unsafe_allow_html=True)
         st.markdown(f"<div class='info'><b>Reason:</b> Contains impossible claim → '{matched_phrase}'</div>", unsafe_allow_html=True)
         st.stop()
 
-    #Preprocess text
+    # 2️⃣ Preprocess text
     cleaned = preprocess_text(news_text)
 
-    #Fact-check API
+    # 3️⃣ Fact-check API
     fact_data = fact_check_api(news_text)
     if fact_data:
         rating = fact_data["rating"]
@@ -189,13 +205,13 @@ if st.button("Check News", key="check_news_btn"):
             st.markdown(f"<div class='info'><b>URL:</b> <a class='url-link' href='{article_url}' target='_blank'>Click Here</a></div>", unsafe_allow_html=True)
         st.stop()
 
-    #TF-IDF + ML fallback
+    # 4️⃣ TF-IDF + ML fallback
     input_vec = vectorizer.transform([cleaned])
     pred = model.predict(input_vec)[0]
     prob = model.predict_proba(input_vec)[0]
     confidence = max(prob) * 100
 
-    # Closest DB match
+    # 5️⃣ Closest DB match
     closest_match = find_closest_match(cleaned, df, vectorizer)
     closest_article_url = closest_match.get("article_url", "")
     # Use get_source_name on the URL if source_site is empty or NaN
