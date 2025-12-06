@@ -62,5 +62,7 @@ IMPOSSIBLE_STATEMENTS = [
     "flying cars exist widely today",
     "dinosaurs are pets",
     "the sky is green",
-    "chocolate can cure all diseases"
+    "chocolate can cure all diseases",
+     "the aliens have landed on earth"
 ]
+
